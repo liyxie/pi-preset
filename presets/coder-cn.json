@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "name": "中文编码助手",
+  "description": "保留 pi 原提示词，添加中文回复风格和深度提醒",
+  "blocks": [
+    {
+      "kind": "marker",
+      "id": "pi",
+      "name": "Pi 原提示词",
+      "enabled": true,
+      "marker": "piPrompt"
+    },
+    {
+      "kind": "text",
+      "id": "style",
+      "name": "风格",
+      "enabled": true,
+      "role": "system",
+      "position": { "type": "relative" },
+      "content": "始终用中文回复。今天是 {{date}}，当前模型 {{model}}。"
+    },
+    {
+      "kind": "marker",
+      "id": "chatHistory",
+      "name": "聊天历史",
+      "enabled": true,
+      "marker": "chatHistory"
+    },
+    {
+      "kind": "text",
+      "id": "reminder",
+      "name": "深度提醒",
+      "enabled": true,
+      "role": "system",
+      "position": { "type": "depth", "depth": 0 },
+      "triggers": ["user-turn"],
+      "content": "[提醒：先给结论，再给理由。]"
+    }
+  ],
+  "sampling": {
+    "temperature": 0.3
+  },
+  "squash": {
+    "enabled": true
+  }
+}
