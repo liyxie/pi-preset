@@ -2,7 +2,7 @@
 
 import type { AgentMessage, SystemMessage } from "@earendil-works/pi-ai";
 import { getCurrentSystemMessage, getSystemMessageText } from "@earendil-works/pi-ai";
-import type { MacroEnv, MarkerBlock, PresetBlock, PresetFile, TextBlock } from "./types.ts";
+import type { MacroEnv, MarkerBlock, PresetBlock, PresetFile } from "./types.ts";
 import { expandBlocks } from "./macros.ts";
 import { injectAtDepth, type DepthBlock } from "./depth.ts";
 
@@ -44,10 +44,10 @@ export function assemble(input: AssembleInput): AgentMessage[] {
 	const expanded = expandBlocks(active, macros);
 
 	// ⑥ Render blocks to messages
-	const rendered = renderBlocks(expanded, current, history);
+	const rendered = renderBlocks(expanded, current);
 
 	// ⑦ Split into before/after/depth groups
-	const { before, after, depth, chatHistoryIndex } = splitBlocks(rendered);
+	const { before, after, depth } = splitBlocks(rendered);
 
 	// ⑧ Inject depth blocks into history
 	const historyWithInjections = injectAtDepth(history, depth);
@@ -56,7 +56,7 @@ export function assemble(input: AssembleInput): AgentMessage[] {
 	const { head, rest } = buildHead(before, current, preset);
 
 	// ⑩ Handle mid-conversation system messages
-	const tail = [...rest, ...historyWithInjections, ...after];
+	const tail = [...rest, ...historyWithInjections, ...after.map((block) => createMessage(block.role, block.content))];
 	const finalTail = demoteMidSystem(tail, midConvoSystem, preset.midSystemFallback ?? "user");
 
 	// ⑪ Return assembled message list
@@ -67,15 +67,11 @@ export function assemble(input: AssembleInput): AgentMessage[] {
 function renderBlocks(
 	blocks: PresetBlock[],
 	current: SystemMessage,
-	history: AgentMessage[],
 ): RenderedBlock[] {
 	const rendered: RenderedBlock[] = [];
 
 	for (const block of blocks) {
 		if (block.kind === "marker") {
-			const markerContent = renderMarker(block, current);
-			if (markerContent === null) continue; // Skip empty markers
-
 			if (block.marker === "chatHistory") {
 				// Special marker - doesn't render to a message
 				rendered.push({
@@ -84,6 +80,9 @@ function renderBlocks(
 					isRelative: true,
 				});
 			} else {
+				const markerContent = renderMarker(block, current);
+				if (markerContent === null) continue; // Skip empty markers
+
 				rendered.push({
 					role: block.role ?? "system",
 					content: markerContent,

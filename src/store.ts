@@ -64,16 +64,17 @@ export class PresetStore {
 						this.presets.set(id, { id, source, data: data as PresetFile });
 					}
 				} catch (err) {
+					const errorMsg = `Failed to load: ${err instanceof Error ? err.message : String(err)}`;
 					this.presets.set(id, {
 						id,
 						source,
 						data: null as any,
-						error: `Failed to load: ${err instanceof Error ? err.message : String(err)}`,
+						error: errorMsg,
 					});
 				}
 			}
 		} catch {
-			// Directory doesn't exist or can't be read - skip silently
+			// Directory doesn't exist or can't be read - skip
 		}
 	}
 
@@ -115,17 +116,21 @@ export class PresetStore {
 	}
 
 	/** Activate a preset. Writes state entry. */
-	activate(name: string): void {
+	activate(name: string, ui?: any): void {
 		this.currentState = { name };
 		this.pi.appendEntry("st-preset.state", this.currentState);
-		this.pi.ui.setStatus("st-preset", `preset:${name}`);
+		if (ui) {
+			ui.setStatus("st-preset", `preset:${name}`);
+		}
 	}
 
 	/** Deactivate preset. */
-	deactivate(): void {
+	deactivate(ui?: any): void {
 		this.currentState = { name: null };
 		this.pi.appendEntry("st-preset.state", this.currentState);
-		this.pi.ui.setStatus("st-preset", undefined);
+		if (ui) {
+			ui.setStatus("st-preset", undefined);
+		}
 	}
 
 	/** Get current state. */

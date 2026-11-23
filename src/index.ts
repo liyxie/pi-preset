@@ -36,7 +36,10 @@ export default function stPreset(pi: ExtensionAPI) {
 
 		// Warn if pi's example preset extension is also loaded
 		const commands = pi.getCommands();
-		const presetCommands = commands.filter((c) => c.startsWith("preset"));
+		const presetCommands = commands.filter((c) => {
+			const name = typeof c === "string" ? c : c.name;
+			return name?.startsWith("preset");
+		});
 		if (presetCommands.length > 1) {
 			ctx.ui.notify(
 				"⚠ Warning: Multiple preset extensions detected. pi-st-preset may conflict with examples/extensions/preset.ts",

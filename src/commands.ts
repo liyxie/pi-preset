@@ -51,10 +51,10 @@ async function handlePresetSelect(ctx: ExtensionEventContext, store: PresetStore
 	const selected = await ctx.ui.select("Select preset", choices);
 
 	if (selected === null) {
-		store.deactivate();
+		store.deactivate(ctx.ui);
 		ctx.ui.notify("Preset deactivated");
 	} else {
-		store.activate(selected);
+		store.activate(selected, ctx.ui);
 		ctx.ui.notify(`Activated preset: ${selected}`);
 	}
 }
@@ -89,7 +89,7 @@ async function handlePresetList(ctx: ExtensionEventContext, store: PresetStore):
 
 /** Deactivate preset. */
 async function handlePresetOff(ctx: ExtensionEventContext, store: PresetStore): Promise<void> {
-	store.deactivate();
+	store.deactivate(ctx.ui);
 	ctx.ui.notify("Preset deactivated");
 }
 
@@ -117,7 +117,7 @@ async function handlePresetActivate(
 		return;
 	}
 
-	store.activate(name);
+	store.activate(name, ctx.ui);
 	ctx.ui.notify(`Activated preset: ${name}`);
 }
 

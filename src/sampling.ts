@@ -10,13 +10,14 @@ export interface SamplingConfig {
 
 /**
  * Apply sampling config to provider request payload.
- * Returns modified payload or undefined if no changes needed.
+ * Returns the request body directly, as required by before_provider_request,
+ * or undefined if no changes are needed.
  */
 export function applySampling(
 	payload: Record<string, any>,
 	api: string,
 	sampling: SamplingConfig,
-): { payload: Record<string, any> } | undefined {
+): Record<string, any> | undefined {
 	const modified = { ...payload };
 	let changed = false;
 
@@ -112,7 +113,7 @@ export function applySampling(
 			return undefined;
 	}
 
-	return changed ? { payload: modified } : undefined;
+	return changed ? modified : undefined;
 }
 
 /** Check if API supports sampling parameter overrides. */

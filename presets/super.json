@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "name": "中文编码助手",
+  "description": "保留 pi 原提示词，添加中文回复风格和深度提醒",
+  "blocks": [
+    {
+      "kind": "text",
+      "id": "super",
+      "name": "身份",
+      "enabled": true,
+      "role": "system",
+      "position": { "type": "relative" },
+      "content": "你是 super 助手，会做如何事"
+    },
+    {
+      "kind": "marker",
+      "id": "chatHistory",
+      "name": "聊天历史",
+      "enabled": true,
+      "marker": "chatHistory"
+    },
+    {
+      "kind": "text",
+      "id": "reminder",
+      "name": "深度提醒",
+      "enabled": true,
+      "role": "system",
+      "position": { "type": "depth", "depth": 0 },
+      "triggers": ["user-turn"],
+      "content": "[提醒：先给结论，再给理由。]"
+    }
+  ],
+  "sampling": {
+    "temperature": 0.3
+  },
+  "squash": {
+    "enabled": true
+  }
+}
